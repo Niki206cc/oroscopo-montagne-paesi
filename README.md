@@ -19,12 +19,10 @@ Applicazione Docker per pubblicare ogni giorno su WordPress l'oroscopo dei 12 se
 1. Apri **Stacks** → **Add stack**.
 2. Scegli **Repository** e inserisci `https://github.com/Niki206cc/oroscopo-montagne-paesi`.
 3. Repository reference: `refs/heads/main`; Compose path: `docker-compose.yml`.
-4. Prima del deploy crea nel progetto un file `.env` partendo da `.env.example`, oppure inserisci le stesse variabili nella configurazione dello stack.
+4. Inserisci le variabili di `.env.example` nella sezione **Environment variables** dello stack.
 5. Avvia lo stack e apri `http://IP-DI-HOME-ASSISTANT:8086`.
 6. Carica dal pannello l'immagine base già approvata, senza data.
 7. Controlla l'anteprima e premi **Avvia automazione**.
-
-> Se Portainer non supporta `env_file` per stack da repository, elimina dal compose le righe `env_file` e aggiungi le variabili nella sezione Environment variables dello stack.
 
 ## Password applicazione WordPress
 
