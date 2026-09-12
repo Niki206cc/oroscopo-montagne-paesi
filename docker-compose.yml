@@ -8,7 +8,18 @@ services:
     volumes:
       - oroscopo_data:/app/data
     environment:
-      - TZ=Europe/Rome
+      WP_URL: "${WP_URL}"
+      WP_USERNAME: "${WP_USERNAME}"
+      WP_APP_PASSWORD: "${WP_APP_PASSWORD}"
+      WP_POST_STATUS: "${WP_POST_STATUS:-draft}"
+      WP_CATEGORY_IDS: "${WP_CATEGORY_IDS:-}"
+      WP_TAG_IDS: "${WP_TAG_IDS:-}"
+      WP_AUTHOR_ID: "${WP_AUTHOR_ID:-}"
+      PUBLISH_TIME: "${PUBLISH_TIME:-05:30}"
+      AUTOMATION_ENABLED: "${AUTOMATION_ENABLED:-false}"
+      TZ: "${TZ:-Europe/Rome}"
+      SECRET_KEY: "${SECRET_KEY}"
+      PORT: "${PORT:-8080}"
 
 volumes:
   oroscopo_data:
