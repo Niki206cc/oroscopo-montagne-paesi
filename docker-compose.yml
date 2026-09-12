@@ -5,8 +5,6 @@ services:
     restart: unless-stopped
     ports:
       - "8086:8080"
-    env_file:
-      - .env
     volumes:
       - oroscopo_data:/app/data
     environment:
