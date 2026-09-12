@@ -11,7 +11,8 @@ Applicazione Docker per pubblicare ogni giorno su WordPress l'oroscopo dei 12 se
 - regolazione di posizione, dimensione, colore e contorno della data;
 - pubblicazione manuale e automatica;
 - controllo anti-duplicato su WordPress;
-- categoria, tag e autore configurabili;
+- categoria Nazionali ed Internazionali (ID 1869) preimpostata, tag e autore configurabili;
+- orario di pubblicazione modificabile direttamente dal pannello;
 - stato persistente, log ed healthcheck Docker.
 
 ## Installazione in Portainer
@@ -36,7 +37,7 @@ In WordPress vai su **Utenti → Profilo → Password delle applicazioni**, asse
 | `WP_USERNAME` | `nicola` | Utente WordPress |
 | `WP_APP_PASSWORD` | `xxxx ...` | Password applicazione |
 | `WP_POST_STATUS` | `publish` | `publish` oppure `draft` |
-| `WP_CATEGORY_IDS` | `123` | ID categoria; più ID separati da virgola |
+| `WP_CATEGORY_IDS` | `1869` | Categoria Nazionali ed Internazionali |
 | `WP_TAG_IDS` | `10,11` | ID tag separati da virgola |
 | `WP_AUTHOR_ID` | `2` | ID autore opzionale |
 | `PUBLISH_TIME` | `05:30` | Ora italiana di pubblicazione |
@@ -57,4 +58,4 @@ Il pannello va usato soltanto nella rete locale. Non esporre la porta `8086` dir
 
 ## Versione
 
-1.0.0
+1.1.0
