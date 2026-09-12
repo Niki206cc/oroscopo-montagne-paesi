@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Oroscopo automatico</title><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head>
+<body><main>
+  <header><div><h1>Montagne &amp; Paesi</h1><p>Oroscopo automatico</p></div><span class="version">v{{ version }}</span></header>
+  {% with messages = get_flashed_messages(with_categories=true) %}{% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}{% endwith %}
+  <section class="status-grid">
+    <article><span>Stato</span><strong class="{{ 'on' if state.automation_enabled else 'off' }}">{{ 'ATTIVO' if state.automation_enabled else 'FERMO' }}</strong></article>
+    <article><span>Pubblicazione giornaliera</span><strong>{{ publish_time }}</strong></article>
+    <article><span>WordPress</span><strong class="{{ 'on' if configured else 'off' }}">{{ 'CONFIGURATO' if configured else 'DA CONFIGURARE' }}</strong></article>
+    <article><span>Immagine</span><strong class="{{ 'on' if has_image else 'off' }}">{{ 'PRONTA' if has_image else 'DA CARICARE' }}</strong></article>
+  </section>
+  <section><h2>Comandi</h2><div class="buttons">
+    <a class="button secondary" href="{{ url_for('article_preview') }}" target="_blank">Anteprima articolo</a>
+    {% if has_image %}<a class="button secondary" href="{{ url_for('image_preview') }}" target="_blank">Anteprima immagine</a>{% endif %}
+    <form method="post" action="{{ url_for('publish_now') }}"><button>Pubblica ora</button></form>
+    {% if state.automation_enabled %}<form method="post" action="{{ url_for('automation', action='stop') }}"><button class="danger">Ferma automazione</button></form>
+    {% else %}<form method="post" action="{{ url_for('automation', action='start') }}"><button class="success">Avvia automazione</button></form>{% endif %}
+  </div></section>
+  <section><h2>Immagine predefinita</h2><p>Carica la grafica senza data: il sistema aggiungerà soltanto <strong>{{ now.strftime('%d/%m/%Y') }}</strong>.</p>
+    <form method="post" action="{{ url_for('image_upload') }}" enctype="multipart/form-data" class="row"><input type="file" name="image" accept="image/jpeg,image/png" required><button>Carica immagine</button></form>
+    {% if has_image %}<img class="preview" src="{{ url_for('image_preview') }}?t={{ now.timestamp() }}" alt="Anteprima immagine con data">{% endif %}
+    <form method="post" action="{{ url_for('image_settings') }}" class="settings">
+      <label>Posizione orizzontale %<input type="number" name="image_x" min="0" max="100" step="1" value="{{ state.image_x }}"></label>
+      <label>Posizione verticale %<input type="number" name="image_y" min="0" max="100" step="1" value="{{ state.image_y }}"></label>
+      <label>Dimensione testo<input type="number" name="font_size" min="16" max="200" value="{{ state.font_size }}"></label>
+      <label>Colore testo<input type="color" name="text_color" value="{{ state.text_color }}"></label>
+      <label>Colore contorno<input type="color" name="stroke_color" value="{{ state.stroke_color }}"></label>
+      <label>Spessore contorno<input type="number" name="stroke_width" min="0" max="10" value="{{ state.stroke_width }}"></label>
+      <button>Salva e aggiorna anteprima</button>
+    </form>
+  </section>
+  <section><h2>Ultima attività</h2><p><strong>Ultima pubblicazione:</strong> {{ state.last_publish or 'Nessuna' }}</p>
+    {% if state.last_url %}<p><a href="{{ state.last_url }}" target="_blank">Apri l'ultimo articolo</a></p>{% endif %}
+    {% if state.last_error %}<p class="error-text"><strong>Ultimo errore:</strong> {{ state.last_error }}</p>{% endif %}
+  </section>
+</main></body></html>
