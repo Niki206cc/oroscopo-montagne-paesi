@@ -17,6 +17,9 @@
     {% if state.automation_enabled %}<form method="post" action="{{ url_for('automation', action='stop') }}"><button class="danger">Ferma automazione</button></form>
     {% else %}<form method="post" action="{{ url_for('automation', action='start') }}"><button class="success">Avvia automazione</button></form>{% endif %}
   </div></section>
+  <section><h2>Orario di pubblicazione</h2><p>L'orario usa il fuso italiano Europe/Rome e viene applicato subito, senza riavviare il container.</p>
+    <form method="post" action="{{ url_for('update_schedule') }}" class="row"><input class="time-input" type="time" name="publish_time" value="{{ publish_time }}" required><button>Salva orario</button></form>
+  </section>
   <section><h2>Immagine predefinita</h2><p>Carica la grafica senza data: il sistema aggiungerà soltanto <strong>{{ now.strftime('%d/%m/%Y') }}</strong>.</p>
     <form method="post" action="{{ url_for('image_upload') }}" enctype="multipart/form-data" class="row"><input type="file" name="image" accept="image/jpeg,image/png" required><button>Carica immagine</button></form>
     {% if has_image %}<img class="preview" src="{{ url_for('image_preview') }}?t={{ now.timestamp() }}" alt="Anteprima immagine con data">{% endif %}
