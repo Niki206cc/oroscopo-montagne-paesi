@@ -13,7 +13,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, flash, jsonify, redirect, render_template, request, send_file, url_for
 from PIL import Image, ImageDraw, ImageFont
 
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = Path(os.getenv("DATA_DIR", BASE_DIR / "data"))
 DATA_DIR.mkdir(parents=True, exist_ok=True)
@@ -50,6 +50,7 @@ def env_bool(name, default=False):
 def load_state():
     default = {
         "automation_enabled": env_bool("AUTOMATION_ENABLED", False),
+        "publish_time": os.getenv("PUBLISH_TIME", "05:30"),
         "last_publish": None, "last_url": None, "last_error": None,
         "image_x": 50, "image_y": 77, "font_size": 72,
         "text_color": "#ffffff", "stroke_color": "#000000", "stroke_width": 2,
@@ -183,8 +184,9 @@ def upload_image(day):
     return media["id"]
 
 
-def csv_ints(name):
-    return [int(x.strip()) for x in os.getenv(name, "").split(",") if x.strip().isdigit()]
+def csv_ints(name, default=""):
+    raw = os.getenv(name, "").strip() or default
+    return [int(x.strip()) for x in raw.split(",") if x.strip().isdigit()]
 
 
 def publish(day=None, force=False):
@@ -201,7 +203,7 @@ def publish(day=None, force=False):
             content = build_article(payload, day)
             media_id = upload_image(day)
             post = {"title": title, "content": content, "status": os.getenv("WP_POST_STATUS", "publish"), "featured_media": media_id}
-            categories = csv_ints("WP_CATEGORY_IDS")
+            categories = csv_ints("WP_CATEGORY_IDS", "1869")
             tags = csv_ints("WP_TAG_IDS")
             if categories: post["categories"] = categories
             if tags: post["tags"] = tags
@@ -236,7 +238,7 @@ def dashboard():
     now = datetime.now(TZ)
     configured = all(os.getenv(k) for k in ("WP_URL", "WP_USERNAME", "WP_APP_PASSWORD"))
     return render_template("index.html", version=VERSION, state=state, now=now, configured=configured,
-                           has_image=BASE_IMAGE.exists(), publish_time=os.getenv("PUBLISH_TIME", "05:30"))
+                           has_image=BASE_IMAGE.exists(), publish_time=state["publish_time"])
 
 
 @app.post("/image")
@@ -310,13 +312,30 @@ def automation(action):
     return redirect(url_for("dashboard"))
 
 
+@app.post("/schedule")
+def update_schedule():
+    value = request.form.get("publish_time", "").strip()
+    try:
+        parsed = datetime.strptime(value, "%H:%M")
+        state = load_state()
+        state["publish_time"] = value
+        save_state(state)
+        scheduler.reschedule_job("daily_horoscope", trigger="cron", hour=parsed.hour, minute=parsed.minute, timezone=TZ)
+        flash(f"Orario aggiornato: pubblicazione giornaliera alle {value}", "success")
+    except ValueError:
+        flash("Orario non valido", "error")
+    except Exception as exc:
+        flash(f"Impossibile aggiornare l'orario: {exc}", "error")
+    return redirect(url_for("dashboard"))
+
+
 @app.get("/health")
 def health():
     return jsonify(status="ok", version=VERSION, automation=load_state().get("automation_enabled"))
 
 
 def start_scheduler():
-    hour, minute = [int(x) for x in os.getenv("PUBLISH_TIME", "05:30").split(":", 1)]
+    hour, minute = [int(x) for x in load_state()["publish_time"].split(":", 1)]
     scheduler = BackgroundScheduler(timezone=TZ)
     scheduler.add_job(scheduled_job, "cron", hour=hour, minute=minute, id="daily_horoscope", max_instances=1, coalesce=True)
     scheduler.start()
