@@ -1,0 +1,16 @@
+services:
+  oroscopo:
+    build: .
+    container_name: oroscopo-montagne-paesi
+    restart: unless-stopped
+    ports:
+      - "8086:8080"
+    env_file:
+      - .env
+    volumes:
+      - oroscopo_data:/app/data
+    environment:
+      - TZ=Europe/Rome
+
+volumes:
+  oroscopo_data:
