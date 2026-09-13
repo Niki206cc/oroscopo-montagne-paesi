@@ -58,4 +58,4 @@ Il pannello va usato soltanto nella rete locale. Non esporre la porta `8086` dir
 
 ## Versione
 
-1.1.0
+1.2.0
