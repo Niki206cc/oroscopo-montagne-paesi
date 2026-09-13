@@ -13,7 +13,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, flash, jsonify, redirect, render_template, request, send_file, url_for
 from PIL import Image, ImageDraw, ImageFont
 
-VERSION = "1.1.0"
+VERSION = "1.2.0"
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = Path(os.getenv("DATA_DIR", BASE_DIR / "data"))
 DATA_DIR.mkdir(parents=True, exist_ok=True)
@@ -112,12 +112,14 @@ def build_article(payload, day):
         if not item:
             raise RuntimeError(f"Segno mancante nella risposta: {api_name}")
         data = item.get("data", {})
-        text = html.escape(item.get("text", "")).replace("\n", "<br>")
+        love_line = html.escape(data.get("loveLine", "Indicazioni non disponibili."))
+        work_line = html.escape(data.get("workLine", "Indicazioni non disponibili."))
+        energy_line = html.escape(data.get("energyLine", "Indicazioni non disponibili."))
         parts.append(
             f'<p><strong>{symbol} {italian_name}</strong><br>'
-            f'<strong>Amore:</strong> {stars(data.get("love"))} &nbsp; '
-            f'<strong>Lavoro:</strong> {stars(data.get("work"))} &nbsp; '
-            f'<strong>Energia:</strong> {stars(data.get("energy"))}<br>{text}</p>'
+            f'<strong>Amore:</strong> {stars(data.get("love"))}<br>{love_line}<br><br>'
+            f'<strong>Lavoro:</strong> {stars(data.get("work"))}<br>{work_line}<br><br>'
+            f'<strong>Energia:</strong> {stars(data.get("energy"))}<br>{energy_line}</p>'
         )
     attr = payload.get("attribution", {})
     href = html.escape(attr.get("localizedHref", "https://sigastra.com/it/oroscopo-di-oggi"), quote=True)
