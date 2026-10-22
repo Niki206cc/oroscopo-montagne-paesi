@@ -43,6 +43,8 @@ In WordPress vai su **Utenti → Profilo → Password delle applicazioni**, asse
 | `PUBLISH_TIME` | `05:30` | Ora italiana di pubblicazione |
 | `AUTOMATION_ENABLED` | `false` | Stato iniziale; poi gestibile dal pannello |
 | `SECRET_KEY` | stringa casuale | Chiave per le sessioni del pannello |
+| `SIGASTRA_REFERER` | `https://www.montagneepaesi.com/` | Facoltativa: pagina pubblica associata a Sigastra; se assente usa `WP_URL` |
+| `SIGASTRA_API_KEY` | chiave gratuita | Facoltativa: chiave partner rilasciata da Sigastra |
 
 ## Immagine
 
@@ -50,7 +52,7 @@ La grafica non è salvata nel repository: si carica dal pannello e resta nel vol
 
 ## API e attribuzione
 
-Il progetto usa l'endpoint standard (teaser) `https://sigastra.com/api/v1/daily?lang=it`, senza `full=1`. In fondo all'articolo viene inserito il link do-follow visibile richiesto da Sigastra. Il progetto non usa la modalità testo completo e quindi non richiede il canonical verso Sigastra.
+Il progetto usa l'endpoint standard (teaser) `https://sigastra.com/api/v1/daily?lang=it`, senza `full=1`. Le richieste server inviano il sito tramite l'header `Referer`, come richiesto da Sigastra dal 15 ottobre 2026. In fondo all'articolo viene inserito il link do-follow visibile richiesto da Sigastra. Il progetto non usa la modalità testo completo e quindi non richiede il canonical verso Sigastra.
 
 ## Sicurezza
 
@@ -58,4 +60,4 @@ Il pannello va usato soltanto nella rete locale. Non esporre la porta `8086` dir
 
 ## Versione
 
-1.2.0
+1.3.0
