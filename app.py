@@ -13,7 +13,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, flash, jsonify, redirect, render_template, request, send_file, url_for
 from PIL import Image, ImageDraw, ImageFont
 
-VERSION = "1.2.0"
+VERSION = "1.3.0"
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = Path(os.getenv("DATA_DIR", BASE_DIR / "data"))
 DATA_DIR.mkdir(parents=True, exist_ok=True)
@@ -88,7 +88,27 @@ def validate_configuration(require_image=True):
 
 
 def fetch_horoscope():
-    response = requests.get("https://sigastra.com/api/v1/daily", params={"lang": "it"}, timeout=30)
+    referer = os.getenv("SIGASTRA_REFERER", "").strip() or os.getenv(
+        "WP_URL", "https://www.montagneepaesi.com"
+    ).rstrip("/") + "/"
+    headers = {
+        "User-Agent": "OroscopoMontagnePaesi/1.3",
+        "Referer": referer,
+    }
+    api_key = os.getenv("SIGASTRA_API_KEY", "").strip()
+    if api_key:
+        headers["x-sigastra-key"] = api_key
+    response = requests.get(
+        "https://sigastra.com/api/v1/daily",
+        params={"lang": "it"},
+        headers=headers,
+        timeout=30,
+    )
+    if response.status_code == 401:
+        raise RuntimeError(
+            "Sigastra ha rifiutato l'accesso. Verifica che SIGASTRA_REFERER indichi una pagina pubblica "
+            "di Montagne & Paesi contenente il collegamento visibile 'Powered by Sigastra'."
+        )
     response.raise_for_status()
     payload = response.json()
     if len(payload.get("items", [])) != 12:
